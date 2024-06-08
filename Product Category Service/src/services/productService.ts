@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { RedisUtils } from '../utils/redisUtils';
+// import { RedisUtils } from '../utils/redisUtils';
 import { prisma } from '../configs/prisma';
 
 export class ProductService {
@@ -7,8 +7,8 @@ export class ProductService {
         const { category, sort_by } = filters;
         const cacheKey = `products_${category}_${sort_by}`;
 
-        const cachedProducts = await RedisUtils.getCache(cacheKey);
-        if (cachedProducts) return JSON.parse(cachedProducts);
+        // const cachedProducts = await RedisUtils.getCache(cacheKey);
+        // if (cachedProducts) return JSON.parse(cachedProducts);
 
         const products = await prisma.product.findMany({
             where: {
@@ -19,15 +19,15 @@ export class ProductService {
             },
         });
 
-        await RedisUtils.setCache(cacheKey, JSON.stringify(products));
+        // await RedisUtils.setCache(cacheKey, JSON.stringify(products));
         return products;
     }
 
     static async getProductById(id: string) {
         const cacheKey = `product_${id}`;
 
-        const cachedProduct = await RedisUtils.getCache(cacheKey);
-        if (cachedProduct) return JSON.parse(cachedProduct);
+        // const cachedProduct = await RedisUtils.getCache(cacheKey);
+        // if (cachedProduct) return JSON.parse(cachedProduct);
 
         const product = await prisma.product.findUnique({
             where: { id },
@@ -35,13 +35,13 @@ export class ProductService {
 
         if (!product) throw new Error('Product not found');
 
-        await RedisUtils.setCache(cacheKey, JSON.stringify(product));
+        // await RedisUtils.setCache(cacheKey, JSON.stringify(product));
         return product;
     }
 
     static async createProduct(data: any) {
         const product = await prisma.product.create({ data });
-        await RedisUtils.clearCache('products_*');
+        // await RedisUtils.clearCache('products_*');
         return product;
     }
 
@@ -50,12 +50,12 @@ export class ProductService {
             where: { id },
             data,
         });
-        await RedisUtils.clearCache(`products_*`, `product_${id}`);
+        // await RedisUtils.clearCache(`products_*`, `product_${id}`);
         return product;
     }
 
     static async deleteProduct(id: string) {
         await prisma.product.delete({ where: { id } });
-        await RedisUtils.clearCache(`products_*`, `product_${id}`);
+        // await RedisUtils.clearCache(`products_*`, `product_${id}`);
     }
 }

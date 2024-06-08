@@ -24,11 +24,11 @@ export const morganInstance = morgan(
                 (tokens.res(req, res, 'content-length') ?? '0'),
         ].join(' ');
     },
-    // {
-    //     stream: {
-    //         write: function (message, encoding) {
-    //             logger.http(message);
-    //         },
-    //     },
-    // }
+    {
+        stream: {
+            write: function (message) {
+                logger.http(message);
+            },
+        },
+    }
 );
