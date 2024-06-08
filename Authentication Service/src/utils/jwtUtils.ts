@@ -1,17 +1,35 @@
 import jwt from 'jsonwebtoken';
 import { promisify } from 'util';
 import { redisClient } from '../configs/redis';
+import fs from 'fs';
+import path from 'path';
+import jose from 'node-jose';
 
 const getAsync = promisify(redisClient.get).bind(redisClient);
 const setAsync = promisify(redisClient.set).bind(redisClient);
 
-export const JWT_SECRET = process.env.JWT_SECRET;
+// Load RSA keys
+const privateKey = fs.readFileSync(
+    path.resolve(__dirname, '../../keys/private.pem'),
+    'utf8'
+);
+const publicKey = fs.readFileSync(
+    path.resolve(__dirname, '../../keys/public.pem'),
+    'utf8'
+);
+
+export const ACCESS_TOKEN_SECRET =
+    process.env.ACCESS_TOKEN_SECRET ?? 'accessSecret';
+export const REFRESH_TOKEN_SECRET =
+    process.env.REFRESH_TOKEN_SECRET ?? 'refreshSecret';
+export const ID_TOKEN_SECRET =
+    process.env.ID_TOKEN_SECRET ?? privateKey;
 
 export class JWTUtils {
     static generateAccessToken(user: any) {
         return jwt.sign(
             { id: user.id, username: user.username },
-            JWT_SECRET,
+            ACCESS_TOKEN_SECRET,
             { expiresIn: '15m' }
         );
     }
@@ -19,8 +37,16 @@ export class JWTUtils {
     static generateRefreshToken(user: any) {
         return jwt.sign(
             { id: user.id, username: user.username },
-            JWT_SECRET,
-            { expiresIn: '7d' }
+            REFRESH_TOKEN_SECRET,
+            { expiresIn: '30d' }
+        );
+    }
+
+    static generateIdToken(user: any) {
+        return jwt.sign(
+            { id: user.id, username: user.username },
+            ID_TOKEN_SECRET,
+            { expiresIn: '15m' }
         );
     }
 
@@ -32,7 +58,7 @@ export class JWTUtils {
         try {
             const payload = jwt.verify(
                 refreshToken,
-                JWT_SECRET
+                REFRESH_TOKEN_SECRET
             ) as any;
             const storedToken = await getAsync(payload.id);
             if (storedToken !== refreshToken)
@@ -47,17 +73,26 @@ export class JWTUtils {
             return {
                 accessToken: newAccessToken,
                 refreshToken: newRefreshToken,
+                idToken: this.generateIdToken(payload),
             };
         } catch (error) {
             throw new Error('Invalid refresh token');
         }
     }
 
-    static getJWKS() {
-        // Return public keys for JWT verification
+    static async getJWKS() {
+        const key = await jose.JWK.asKey(publicKey, 'pem');
+        const jwks: any = key.toJSON();
         return {
             keys: [
-                /* public keys */
+                {
+                    kty: jwks.kty,
+                    kid: jwks.kid,
+                    use: 'sig',
+                    alg: 'RS256',
+                    n: jwks.n,
+                    e: jwks.e,
+                },
             ],
         };
     }

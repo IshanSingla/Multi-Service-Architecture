@@ -1,11 +1,9 @@
-import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { JWTUtils } from '../utils/jwtUtils';
 import { prisma } from '../configs/prisma';
 
 export class AuthService {
     static async createAccount(
-        username: string,
         password: string,
         email: string
     ) {

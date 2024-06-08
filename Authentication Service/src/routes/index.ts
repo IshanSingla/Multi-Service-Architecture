@@ -7,7 +7,7 @@ router.get('/', (req, res) => {
     res.send('server is live');
 });
 
-router.use('/private/**', privateRouter);
-router.use('/public/**', publicRouter);
+router.use('/private', privateRouter);
+router.use('/public', publicRouter);
 
 export default router;

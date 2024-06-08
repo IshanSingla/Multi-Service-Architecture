@@ -1,14 +1,13 @@
 import { Request, Response } from 'express';
 import { AuthService } from '../services/authService';
-import { JWTUtils } from '../utils/jwtUtils';
-import { CustomRequest } from '../types';
+import { JWTUtils, ACCESS_TOKEN_SECRET } from '../utils/jwtUtils';
+import jwt from 'jsonwebtoken';
 
 export class AuthController {
     static async createAccount(req: Request, res: Response) {
-        const { username, password, email } = req.body;
+        const { password, email } = req.body;
         try {
             const user = await AuthService.createAccount(
-                username,
                 password,
                 email
             );
@@ -31,8 +30,15 @@ export class AuthController {
         }
     }
 
-    static async getUserInfo(req: CustomRequest, res: Response) {
-        const user = req.user;
+    static async getUserInfo(req: Request, res: Response) {
+        const authHeader = req.headers.authorization;
+        if (!authHeader)
+            return res
+                .status(401)
+                .json({ error: 'No token provided' });
+
+        const token = authHeader.split(' ')[1];
+        const user = jwt.verify(token, ACCESS_TOKEN_SECRET);
         res.status(200).json(user);
     }
 
@@ -47,7 +53,7 @@ export class AuthController {
     }
 
     static async getJWKS(req: Request, res: Response) {
-        const jwks = JWTUtils.getJWKS();
+        const jwks = await JWTUtils.getJWKS();
         res.status(200).json(jwks);
     }
 }

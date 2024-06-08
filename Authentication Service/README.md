@@ -98,8 +98,10 @@ Authorization: Bearer <access_token>
 Create a `.env` file with the following variables:
 ```sh
 POSTGRESQL_URI=your_postgresql_uri
-REDIS_URI=your_redis_uri
-JWT_SECRET=your_jwt_secret
+REDIS_HOST=your_redis_host
+REDIS_PASSWORD=your_redis_pass
+ACCESS_TOKEN_SECRET=your_jwt_secret
+REFRESH_TOKEN_SECRET=your_jwt_secret
 ```
 
 
