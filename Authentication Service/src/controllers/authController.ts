@@ -18,10 +18,10 @@ export class AuthController {
     }
 
     static async loginUser(req: Request, res: Response) {
-        const { username, password } = req.body;
+        const { email, password } = req.body;
         try {
             const tokens = await AuthService.loginUser(
-                username,
+                email,
                 password
             );
             res.status(200).json(tokens);

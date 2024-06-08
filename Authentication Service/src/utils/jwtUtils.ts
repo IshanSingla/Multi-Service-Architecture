@@ -46,12 +46,15 @@ export class JWTUtils {
         return jwt.sign(
             { id: user.id, username: user.username },
             ID_TOKEN_SECRET,
-            { expiresIn: '15m' }
+            { algorithm: 'RS256', expiresIn: '15m' } // Use RS256 for asymmetric key
         );
     }
 
     static async storeRefreshToken(userId: string, token: string) {
+        return
+        await redisClient.connect();
         await setAsync(userId, token);
+        await redisClient.disconnect();
     }
 
     static async refreshToken(refreshToken: string) {
@@ -60,9 +63,11 @@ export class JWTUtils {
                 refreshToken,
                 REFRESH_TOKEN_SECRET
             ) as any;
-            const storedToken = await getAsync(payload.id);
-            if (storedToken !== refreshToken)
-                throw new Error('Invalid refresh token');
+            // await redisClient.connect();
+            // const storedToken = await getAsync(payload.id);
+            // await redisClient.disconnect();
+            // if (storedToken !== refreshToken)
+            //     throw new Error('Invalid refresh token');
 
             const newAccessToken = this.generateAccessToken(payload);
             const newRefreshToken =
