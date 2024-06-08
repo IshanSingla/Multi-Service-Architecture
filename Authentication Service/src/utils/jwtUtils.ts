@@ -51,10 +51,7 @@ export class JWTUtils {
     }
 
     static async storeRefreshToken(userId: string, token: string) {
-        return
-        await redisClient.connect();
-        await setAsync(userId, token);
-        await redisClient.disconnect();
+        return;
     }
 
     static async refreshToken(refreshToken: string) {

@@ -9,7 +9,7 @@ This document outlines the architecture for a multi-service system designed to s
 <img src="./High-Level-Diagram.svg">
 
 ## Low Level Diagram
-<img src="./High-Level-Diagram.svg">
+<img src="./Low-Level-Diagram.svg">
 
 
 ## Task Description

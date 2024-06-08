@@ -43,9 +43,9 @@ export class AuthController {
     }
 
     static async refreshToken(req: Request, res: Response) {
-        const { refreshToken } = req.body;
+        const { refresh_token } = req.body;
         try {
-            const tokens = await JWTUtils.refreshToken(refreshToken);
+            const tokens = await JWTUtils.refreshToken(refresh_token);
             res.status(200).json(tokens);
         } catch (error: any) {
             res.status(400).json({ error: error.message });

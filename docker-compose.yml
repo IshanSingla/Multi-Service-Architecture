@@ -1,0 +1,218 @@
+version: '3.8'
+
+services:
+    # PostgreSQL for Authorization Service
+    postgres_auth:
+        image: postgres:latest
+        container_name: postgres_auth
+        restart: always
+        environment:
+            POSTGRES_USER: bfh_owner
+            POSTGRES_PASSWORD: vojbNhuHA9R1
+            POSTGRES_DB: bfh_auth
+        networks:
+            - app-network
+        volumes:
+            - ./db/postgres_auth:/var/lib/postgresql/data
+            - ./log/postgres_auth:/var/log/postgres_auth
+
+    # PostgreSQL for Product Service
+    postgres_product:
+        image: postgres:latest
+        container_name: postgres_product
+        restart: always
+        environment:
+            POSTGRES_USER: bfh_owner
+            POSTGRES_PASSWORD: vojbNhuHA9R1
+            POSTGRES_DB: bfh_product
+        networks:
+            - app-network
+        volumes:
+            - ./db/postgres_product:/var/lib/postgresql/data
+            - ./log/postgres_product:/var/log/postgres_product
+
+    # PostgreSQL for Coupon Service
+    postgres_coupon:
+        image: postgres:latest
+        container_name: postgres_coupon
+        restart: always
+        environment:
+            POSTGRES_USER: bfh_owner
+            POSTGRES_PASSWORD: vojbNhuHA9R1
+            POSTGRES_DB: bfh_coupon
+        networks:
+            - app-network
+        volumes:
+            - ./db/postgres_coupon:/var/lib/postgresql/data
+            - ./log/postgres_coupon:/var/log/postgres_coupon
+
+    # PostgreSQL for Checkout Service
+    postgres_checkout:
+        image: postgres:latest
+        container_name: postgres_checkout
+        restart: always
+        environment:
+            POSTGRES_USER: bfh_owner
+            POSTGRES_PASSWORD: vojbNhuHA9R1
+            POSTGRES_DB: bfh_checkout
+        networks:
+            - app-network
+        volumes:
+            - ./db/postgres_checkout:/var/lib/postgresql/data
+            - ./log/postgres_checkout:/var/log/postgres_checkout
+
+    # Redis for Authorization Service
+    redis_auth:
+        image: redis:latest
+        container_name: redis_auth
+        restart: always
+        command:
+            - 'redis-server'
+            - '--requirepass'
+            - 'zBQnYSwQ3n3Dq1fsoLnDaECPhFN3BJ5R'
+        networks:
+            - app-network
+
+    # Redis for Product Service
+    redis_product:
+        image: redis:latest
+        container_name: redis_product
+        restart: always
+        command:
+            - 'redis-server'
+            - '--requirepass'
+            - 'zBQnYSwQ3n3Dq1fsoLnDaECPhFN3BJ5R'
+        networks:
+            - app-network
+
+    # MongoDB for Cart Service
+    mongodb_cart:
+        image: mongo:latest
+        container_name: mongodb_cart
+        restart: always
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: bfh_owner
+            MONGO_INITDB_ROOT_PASSWORD: vojbNhuHA9R1
+            MONGO_INITDB_DATABASE: bfh_cart
+        networks:
+            - app-network
+        volumes:
+            - ./db/mongodb_cart:/data/db
+            - ./log/mongodb_cart:/var/log/mongodb_cart
+
+    # Authorization Service
+    authservice:
+        build: ./Authentication Service
+        container_name: authservice
+        restart: always
+        environment:
+            DATABASE_URL: postgresql://bfh_owner:vojbNhuHA9R1@postgres_auth:5432/bfh_auth
+            REDIS_HOST: redis_auth
+            REDIS_PASSWORD: zBQnYSwQ3n3Dq1fsoLnDaECPhFN3BJ5R
+        depends_on:
+            - postgres_auth
+            - redis_auth
+        networks:
+            - app-network
+        volumes:
+            - ./log/authservice:/app/logs
+
+    # Product Service
+    productservice:
+        build: ./Product Category Service
+        container_name: productservice
+        restart: always
+        environment:
+            DATABASE_URL: postgresql://bfh_owner:vojbNhuHA9R1@postgres_product:5432/bfh_product
+            REDIS_HOST: redis_product
+            REDIS_PASSWORD: zBQnYSwQ3n3Dq1fsoLnDaECPhFN3BJ5R
+        depends_on:
+            - postgres_product
+            - redis_product
+        networks:
+            - app-network
+        volumes:
+            - ./log/productservice:/app/logs
+
+    # Cart Service
+    cartservice:
+        build: ./Cart Service
+        container_name: cartservice
+        restart: always
+        environment:
+            DATABASE_URL: mongodb://bfh_owner:vojbNhuHA9R1@mongodb_cart:27017/bfh_cart
+            AUTH_SERVICE_URL: http://authservice:3000
+            PRODUCT_SERVICE_URL: http://productservice:3000
+        depends_on:
+            - mongodb_cart
+            - productservice
+            - authservice
+        networks:
+            - app-network
+        volumes:
+            - ./log/cartservice:/app/logs
+
+    # Coupon Service
+    couponservice:
+        build: ./Coupon Service
+        container_name: couponservice
+        restart: always
+        environment:
+            DATABASE_URL: postgresql://bfh_owner:vojbNhuHA9R1@postgres_coupon:5432/bfh_coupon
+            AUTH_SERVICE_URL: http://authservice:3000
+            PRODUCT_SERVICE_URL: http://productservice:3000
+            CART_SERVICE_URL: http://cartservice:3000
+        depends_on:
+            - postgres_coupon
+            - productservice
+            - authservice
+            - cartservice
+        networks:
+            - app-network
+        volumes:
+            - ./log/couponservice:/app/logs
+
+    # Checkout Service
+    checkoutservice:
+        build: ./Checkout Service
+        container_name: checkoutservice
+        restart: always
+        environment:
+            DATABASE_URL: postgresql://bfh_owner:vojbNhuHA9R1@postgres_checkout:5432/bfh_checkout
+            AUTH_SERVICE_URL: http://authservice:3000
+            PRODUCT_SERVICE_URL: http://productservice:3000
+            CART_SERVICE_URL: http://cartservice:3000
+            COUPON_SERVICE_URL: http://couponservice:3000
+        depends_on:
+            - postgres_checkout
+            - productservice
+            - authservice
+            - cartservice
+            - couponservice
+        networks:
+            - app-network
+        volumes:
+            - ./log/checkoutservice:/app/logs
+
+        # Nginx
+    nginx:
+        image: nginx:latest
+        container_name: nginx
+        restart: always
+        ports:
+            - '80:80'
+        volumes:
+            - ./API Gateway/nginx.conf:/etc/nginx/nginx.conf
+            - ./log/nginx:/var/log/nginx # Detach volume for Nginx logs
+        depends_on:
+            - authservice
+            - productservice
+            - cartservice
+            - couponservice
+            - checkoutservice
+        networks:
+            - app-network
+
+networks:
+    app-network:
+        driver: bridge

@@ -2,9 +2,9 @@
     "name": "cart-service",
     "main": "src/index.js",
     "scripts": {
-        "start": "prisma generate && npm run build && node dist/index.js",
+        "start": "prisma generate && prisma db push   && node dist/index.js",
         "dev": "prisma generate && ts-node-dev --poll ./src/index.ts",
-        "build": "prisma generate && prisma db push && rimraf ./dist && tsc",
+        "build": "rimraf ./dist && tsc",
         "db:generate": "prisma generate --no-engine",
         "db:studio": "prisma generate && prisma studio",
         "db:migrate": "prisma migrate dev --name user-entity --create-only && npx prisma generate",

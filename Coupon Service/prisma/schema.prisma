@@ -5,10 +5,49 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
+    provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model Coupon {
+    id               String         @id @default(cuid())
+    description      String
+    discountValue    Float
+    discountType     DiscountType
+    validFrom        DateTime
+    validUntil       DateTime
+    minOrderValue    Float?
+    maxDiscountValue Float?
+    orderNumber      String?
+    paymentMethod    PaymentMethod?
+    userId           String?
+    productId        String?
+    categoryId       String?
+    specialDay       DateTime?
+    applicableDays   ApplicableDays
+    createdAt        DateTime       @default(now())
+    updatedAt        DateTime       @updatedAt
+}
+
+enum DiscountType {
+    PERCENTAGE
+    FIXED_AMOUNT
+}
+
+enum PaymentMethod {
+    CREDIT_CARD
+    DEBIT_CARD
+    PAYPAL
+    CASH_ON_DELIVERY
+    BANK_TRANSFER
+}
+
+enum ApplicableDays {
+    WEEKDAY
+    WEEKEND
+    ALL_DAYS
 }
