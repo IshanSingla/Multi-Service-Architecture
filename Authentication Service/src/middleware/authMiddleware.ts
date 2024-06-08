@@ -1,9 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import {JWT_SECRET } from "../utils/jwtUtils"
+import { JWT_SECRET } from '../utils/jwtUtils';
+import { CustomRequest } from '../types';
 
 export const authMiddleware = (
-    req: Request,
+    req: CustomRequest,
     res: Response,
     next: NextFunction
 ) => {
@@ -12,7 +13,7 @@ export const authMiddleware = (
         return res.status(401).json({ error: 'No token provided' });
 
     const token = authHeader.split(' ')[1];
-    jwt.verify(token, JWT_SECRET, (err, user) => {
+    jwt.verify(token, JWT_SECRET, (err: any, user: any) => {
         if (err)
             return res
                 .status(403)

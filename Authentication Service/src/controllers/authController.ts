@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { AuthService } from '../services/authService';
 import { JWTUtils } from '../utils/jwtUtils';
+import { CustomRequest } from '../types';
 
 export class AuthController {
     static async createAccount(req: Request, res: Response) {
@@ -12,7 +13,7 @@ export class AuthController {
                 email
             );
             res.status(201).json(user);
-        } catch (error) {
+        } catch (error: any) {
             res.status(400).json({ error: error.message });
         }
     }
@@ -25,12 +26,12 @@ export class AuthController {
                 password
             );
             res.status(200).json(tokens);
-        } catch (error) {
+        } catch (error: any) {
             res.status(401).json({ error: error.message });
         }
     }
 
-    static async getUserInfo(req: Request, res: Response) {
+    static async getUserInfo(req: CustomRequest, res: Response) {
         const user = req.user;
         res.status(200).json(user);
     }
@@ -40,7 +41,7 @@ export class AuthController {
         try {
             const tokens = await JWTUtils.refreshToken(refreshToken);
             res.status(200).json(tokens);
-        } catch (error) {
+        } catch (error: any) {
             res.status(400).json({ error: error.message });
         }
     }

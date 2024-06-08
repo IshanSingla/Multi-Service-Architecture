@@ -13,9 +13,8 @@ This service handles user authentication and session management using PostgreSQL
 4. [Database Schema](#database-schema)
     - [PostgreSQL](#postgresql)
     - [Redis](#redis)
-5. [Setup](#setup)
-6. [Running the Service](#running-the-service)
-7. [Diagram](#diagram)
+5. [Environment Variables](#environment-variables)
+6. [Diagram](#diagram)
 
 
 ## Overview

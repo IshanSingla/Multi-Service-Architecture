@@ -1,10 +1,9 @@
 import jwt from 'jsonwebtoken';
 import { promisify } from 'util';
-import redis from 'redis';
+import { redisClient } from '../configs/redis';
 
-const client = redis.createClient();
-const getAsync = promisify(client.get).bind(client);
-const setAsync = promisify(client.set).bind(client);
+const getAsync = promisify(redisClient.get).bind(redisClient);
+const setAsync = promisify(redisClient.set).bind(redisClient);
 
 export const JWT_SECRET = process.env.JWT_SECRET;
 
