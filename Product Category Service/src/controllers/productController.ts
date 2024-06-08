@@ -3,20 +3,27 @@ import { ProductService } from '../services/productService';
 
 export class ProductController {
     static async getProducts(req: Request, res: Response) {
-        const { category, sort_by } = req.query;
+        const { category, sort_by, id }: any = req.query;
         try {
-            const products = await ProductService.getProducts({
-                category,
-                sort_by,
-            });
-            res.status(200).json(products);
+            if (id) {
+                const product = await ProductService.getProductById(
+                    id
+                );
+                res.status(200).json([product]);
+            } else {
+                const products = await ProductService.getProducts({
+                    category,
+                    sort_by,
+                });
+                res.status(200).json(products);
+            }
         } catch (error: any) {
             res.status(400).json({ error: error.message });
         }
     }
 
     static async getProductById(req: Request, res: Response) {
-        const { id } = req.params;
+        const { id }: any = req.query;
         try {
             const product = await ProductService.getProductById(id);
             res.status(200).json(product);

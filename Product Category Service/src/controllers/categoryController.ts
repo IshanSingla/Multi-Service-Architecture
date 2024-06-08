@@ -3,23 +3,19 @@ import { CategoryService } from '../services/categoryService';
 
 export class CategoryController {
     static async getCategories(req: Request, res: Response) {
+        const { id }: any = req.query;
         try {
-            const categories = await CategoryService.getCategories();
-            res.status(200).json(categories);
+            if (id) {
+                const category =
+                    await CategoryService.getCategoryById(id);
+                res.status(200).json([category]);
+            } else {
+                const categories =
+                    await CategoryService.getCategories();
+                res.status(200).json(categories);
+            }
         } catch (error: any) {
             res.status(400).json({ error: error.message });
-        }
-    }
-
-    static async getCategoryById(req: Request, res: Response) {
-        const { id } = req.params;
-        try {
-            const category = await CategoryService.getCategoryById(
-                id
-            );
-            res.status(200).json(category);
-        } catch (error: any) {
-            res.status(404).json({ error: error.message });
         }
     }
 

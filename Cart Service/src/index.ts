@@ -1,13 +1,13 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import { morganInstance } from './configs/morgan';
-import router from './routes';
 
 try {
     process.loadEnvFile(); // works with only latest node versions
 } catch {
     require('dotenv').config();
 }
+import router from './routes';
 
 const app = express();
 
