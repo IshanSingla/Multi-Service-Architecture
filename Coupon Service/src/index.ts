@@ -2,6 +2,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import { morganInstance } from './configs/morgan';
 import router from './routes';
+import { notFound, errorHandler } from './middleware/authMiddleware';
 
 try {
     process.loadEnvFile(); // works with only latest node versions
@@ -16,7 +17,9 @@ app.set('trust proxy', true)
     .use(morganInstance)
     .use(express.json())
     .use(bodyParser.urlencoded({ extended: true }))
-    .use('/', router);
+    .use('/', router)
+    .use(notFound)
+    .use(errorHandler);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

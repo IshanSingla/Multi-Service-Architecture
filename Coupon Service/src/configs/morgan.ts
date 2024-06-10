@@ -1,16 +1,17 @@
+import { Response } from 'express';
 import { logger } from './logger';
 import morgan from 'morgan';
 
 export const morganInstance = morgan(
-    (tokens: any, req: any, res: any) => {
+    (tokens: any, req: any, res: Response) => {
         return [
             'method=' + tokens.method(req, res),
             'host=' + req.hostname,
             'uri=' + tokens.url(req, res),
             'ssl=' + (req.secure ? 'true' : 'false'),
             'user=' +
-                (req.payload
-                    ? `${req.payload.id}[${req.payload.role}]`
+                (req.user
+                    ? `${req.user.id}[${req.user.role}]`
                     : 'UnAuthorise'),
             'address[ip]=' + tokens['remote-addr'](req, res),
             'user_agent=' + tokens['user-agent'](req, res), // Log user agent
@@ -23,7 +24,7 @@ export const morganInstance = morgan(
             'bytes=' +
                 (tokens.res(req, res, 'content-length') ?? '0'),
         ].join(' ');
-    },
+    }
     // {
     //     stream: {
     //         write: function (message, encoding) {
