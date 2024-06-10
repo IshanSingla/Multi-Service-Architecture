@@ -12,7 +12,7 @@ export class ProductService {
 
         const products = await prisma.product.findMany({
             where: {
-                category_id: category,
+                categoryId: category,
             },
             orderBy: {
                 price: sort_by,

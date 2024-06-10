@@ -17,12 +17,11 @@ model Product {
     id          String    @id @default(uuid())
     name        String
     price       Float
-    category_id String
+    categoryId String
     description String
     createdAt   DateTime  @default(now())
     updatedAt   DateTime  @updatedAt
     Category    Category? @relation(fields: [categoryId], references: [id])
-    categoryId  String?
 }
 
 model Category {

@@ -1,8 +1,12 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { CategoryService } from '../services/categoryService';
 
 export class CategoryController {
-    static async getCategories(req: Request, res: Response) {
+    static async getCategories(
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ) {
         const { id }: any = req.query;
         try {
             if (id) {
@@ -15,11 +19,15 @@ export class CategoryController {
                 res.status(200).json(categories);
             }
         } catch (error: any) {
-            res.status(400).json({ error: error.message });
+            next(error);
         }
     }
 
-    static async createCategory(req: Request, res: Response) {
+    static async createCategory(
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ) {
         const { name, description } = req.body;
         try {
             const category = await CategoryService.createCategory({
@@ -28,11 +36,15 @@ export class CategoryController {
             });
             res.status(201).json(category);
         } catch (error: any) {
-            res.status(400).json({ error: error.message });
+            next(error);
         }
     }
 
-    static async updateCategory(req: Request, res: Response) {
+    static async updateCategory(
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ) {
         const { id } = req.params;
         const { name, description } = req.body;
         try {
@@ -42,17 +54,21 @@ export class CategoryController {
             );
             res.status(200).json(category);
         } catch (error: any) {
-            res.status(400).json({ error: error.message });
+            next(error);
         }
     }
 
-    static async deleteCategory(req: Request, res: Response) {
+    static async deleteCategory(
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ) {
         const { id } = req.params;
         try {
             await CategoryService.deleteCategory(id);
             res.status(204).send();
         } catch (error: any) {
-            res.status(400).json({ error: error.message });
+            next(error);
         }
     }
 }

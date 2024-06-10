@@ -1,4 +1,5 @@
 import { prisma } from '../configs/prisma';
+import ForeignService from './ForeignService';
 
 class CartService {
     static async getCartItems(userId: string) {
@@ -7,9 +8,20 @@ class CartService {
                 where: { userId },
                 include: { items: true },
             });
-            return userCart?.items || [];
+            return userCart?.items
+                ? Promise.all(
+                      userCart?.items.map(async (item) => ({
+                          productId: item.productId,
+                          product: (
+                              await ForeignService.getProductDetails(
+                                  item.productId
+                              )
+                          )[0],
+                          quantity: item.quantity,
+                      }))
+                  )
+                : [];
         } catch (error) {
-            console.error('Error fetching cart items:', error);
             throw new Error('Failed to fetch cart items');
         }
     }
@@ -25,6 +37,9 @@ class CartService {
             });
 
             if (!cart) {
+                if (quantity < 0) {
+                    throw new Error('Invalid quantity');
+                }
                 // If cart does not exist, create a new cart with the item
                 await prisma.cart.create({
                     data: {
@@ -44,9 +59,19 @@ class CartService {
                 );
 
                 if (itemIndex > -1) {
-                    // If item exists, update the quantity
-                    cart.items[itemIndex].quantity += quantity;
+                    if (
+                        quantity < 0 &&
+                        cart.items[itemIndex].quantity + quantity <= 0
+                    ) {
+                        // remove item from cart if quantity is less than 0
+                        cart.items.splice(itemIndex, 1);
+                    } else {
+                        cart.items[itemIndex].quantity += quantity;
+                    }
                 } else {
+                    if (quantity < 0) {
+                        throw new Error('Invalid quantity');
+                    }
                     // If item does not exist, add the new item
                     cart.items.push({
                         productId,
@@ -61,9 +86,8 @@ class CartService {
                     data: { items: { set: cart.items } },
                 });
             }
-        } catch (error) {
-            console.error('Error adding item to cart:', error);
-            throw new Error('Failed to add item to cart');
+        } catch (error: any) {
+            throw new Error(error.message);
         }
     }
 
@@ -86,7 +110,6 @@ class CartService {
                 });
             }
         } catch (error) {
-            console.error('Error removing item from cart:', error);
             throw new Error('Failed to remove item from cart');
         }
     }
@@ -98,7 +121,6 @@ class CartService {
                 select: { items: true },
             });
         } catch (error) {
-            console.error('Error fetching user cart:', error);
             throw new Error('Failed to fetch user cart');
         }
     }
@@ -107,7 +129,6 @@ class CartService {
         try {
             await prisma.cart.delete({ where: { userId } });
         } catch (error) {
-            console.error('Error emptying cart:', error);
             throw new Error('Failed to empty cart');
         }
     }

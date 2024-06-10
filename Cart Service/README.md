@@ -39,10 +39,25 @@ The Cart service provides APIs to manage the user's cart, including adding, remo
 - **Method**: `POST`
 - **Description**: Add a product to the cart or increase its quantity.
 
+##### Request Body
+```json
+{
+  "productId": "string",
+  "quantity": 0
+}
+```
+
 #### 3. Remove Item from Cart
 - **Endpoint**: `/public/remove`
 - **Method**: `POST`
 - **Description**: Remove a product from the cart.
+
+##### Request Body
+```json
+{
+  "productId": "string",
+}
+```
 
 ### Private Routes
 

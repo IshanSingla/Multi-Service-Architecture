@@ -9,8 +9,8 @@ export const morganInstance = morgan(
             'uri=' + tokens.url(req, res),
             'ssl=' + (req.secure ? 'true' : 'false'),
             'user=' +
-                (req.payload
-                    ? `${req.payload.id}[${req.payload.role}]`
+                (req.user
+                    ? `${req.user.id}[${req.user.role}]`
                     : 'UnAuthorise'),
             'address[ip]=' + tokens['remote-addr'](req, res),
             'user_agent=' + tokens['user-agent'](req, res), // Log user agent

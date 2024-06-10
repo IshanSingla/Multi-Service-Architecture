@@ -18,6 +18,9 @@ export class AuthService {
         if (!email) {
             throw new Error('Email is required');
         }
+        if (!password) {
+            throw new Error('Password is required');
+        }
 
         const user = await prisma.user.findUnique({
             where: {

@@ -2,7 +2,32 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import jwkToPem from 'jwk-to-pem';
 import ForeignService from '../services/ForeignService';
+import { logger } from '../configs/logger';
 
+export function notFound(
+    req: Request,
+    res: Response,
+    next: NextFunction
+) {
+    res.status(404);
+    const error = new Error(`404 Not Found - ${req.originalUrl}`);
+    next(error);
+}
+
+export function errorHandler(
+    err: Error,
+    req: Request,
+    res: Response,
+    next: NextFunction
+) {
+    const statusCode = res.statusCode !== 200 ? res.statusCode : 500;
+    if (statusCode > 404) {
+        logger.error(err);
+        res.status(statusCode).send('Internal Server Error');
+    } else {
+        res.status(statusCode).send(err.message);
+    }
+}
 export const authMiddleware = async (
     req: any,
     res: Response,
@@ -11,7 +36,8 @@ export const authMiddleware = async (
     try {
         const token = req.headers.authorization?.split(' ')[1];
         if (!token) {
-            res.status(401).json({ error: 'No token provided' });
+            res.status(401);
+            throw new Error('No token provided');
         } else {
             const decodedToken: any = jwt.decode(token, {
                 complete: true,
@@ -26,8 +52,7 @@ export const authMiddleware = async (
             next();
         }
     } catch (error) {
-        console.error('Error verifying token:', error);
-        res.status(401).json({ error: 'Failed to authenticate' });
+        res.status(401).send('Unauthorized');
     }
 };
 
@@ -38,7 +63,8 @@ export const userIdMiddleware = (
 ): void => {
     const userId: string = req.headers['x-user-id'] as string;
     if (!userId) {
-        res.status(400).json({ error: 'No user ID provided' });
+        res.status(400);
+        throw new Error('User ID is required');
     } else {
         req.user = { id: userId }; // Attach the user ID to the request object
         next();

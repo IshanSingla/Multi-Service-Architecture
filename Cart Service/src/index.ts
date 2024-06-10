@@ -8,6 +8,7 @@ try {
     require('dotenv').config();
 }
 import router from './routes';
+import { errorHandler, notFound } from './middleware/authMiddleware';
 
 const app = express();
 
@@ -16,7 +17,9 @@ app.set('trust proxy', true)
     .use(morganInstance)
     .use(express.json())
     .use(bodyParser.urlencoded({ extended: true }))
-    .use('/', router);
+    .use('/', router)
+    .use(notFound)
+    .use(errorHandler);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

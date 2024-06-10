@@ -23,12 +23,14 @@ class ForeignService {
     static async getProductDetails(productId: string): Promise<any> {
         try {
             const response = await axios.get(
-                `${this.productServiceUrl}/private/product?id=${productId}`
+                `${process.env.PRODUCT_SERVICE_URL}/private/products?id=${productId}`
             );
             return response.data;
-        } catch (error) {
-            console.error('Error fetching product details:', error);
-            throw new Error('Failed to fetch product details');
+        } catch (error: any) {
+            throw new Error(
+                error.response?.data ??
+                    'Product not found'
+            );
         }
     }
 }
