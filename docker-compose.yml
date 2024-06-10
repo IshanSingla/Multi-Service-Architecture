@@ -45,7 +45,7 @@ services:
 
     # Authorization Service
     authservice:
-        build: ./Authentication Service
+        build: ./auth-services
         container_name: authservice
         restart: always
         environment:
@@ -62,7 +62,7 @@ services:
 
     # Product Service
     productservice:
-        build: ./Product Category Service
+        build: ./product-services
         container_name: productservice
         restart: always
         environment:

@@ -1,11 +1,4 @@
 apiVersion: v1
-kind: Namespace
-metadata:
-  name: auth-services
-
----
-
-apiVersion: v1
 kind: Secret
 metadata:
   name: app-secrets
