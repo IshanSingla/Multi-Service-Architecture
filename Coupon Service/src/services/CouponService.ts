@@ -1,7 +1,6 @@
-import { PrismaClient, Coupon } from '@prisma/client';
+import { Coupon } from '@prisma/client';
 import ForeignService from './ForeignService';
-
-const prisma = new PrismaClient();
+import { prisma } from '../configs/prisma';
 
 class CouponService {
     static async createCoupon(couponData: Coupon) {

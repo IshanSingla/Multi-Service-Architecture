@@ -3,6 +3,7 @@ import bodyParser from 'body-parser';
 import { morganInstance } from './configs/morgan';
 import router from './routes';
 import { notFound, errorHandler } from './middleware/authMiddleware';
+import { initializeCoupons } from './utils/autoCreate';
 
 try {
     process.loadEnvFile(); // works with only latest node versions
@@ -24,4 +25,5 @@ app.set('trust proxy', true)
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
+    initializeCoupons();
 });
