@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: auth-services
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: app-secrets
+  namespace: auth-services
+type: Opaque
+data:
+  POSTGRES_PASSWORD: dm9qYk5odUhBOVIx
+  REDIS_PASSWORD: ekJRandZSwUzbjNEcTFmc29MbkRhRUNQaEZOM0JKNVI=
+  MONGO_INITDB_ROOT_PASSWORD: dm9qYk5odUhBOVIx
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-deployment
+  namespace: auth-services
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth
+  template:
+    metadata:
+      labels:
+        app: auth
+    spec:
+      containers:
+      - name: auth
+        image: ishansingl.azurecr.io/auth-service:latest
+        env:
+        - name: DATABASE_URL
+          value: "postgresql://bfh_owner:{{ .secrets.POSTGRES_PASSWORD }}@postgres:5432/bfh_auth"
+        - name: REDIS_HOST
+          value: redis
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: REDIS_PASSWORD
+        ports:
+        - containerPort: 3000

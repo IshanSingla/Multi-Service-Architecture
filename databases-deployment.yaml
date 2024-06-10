@@ -1,7 +1,13 @@
 apiVersion: v1
+kind: Namespace
+metadata:
+  name: db
+---
+apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: postgres-pvc
+  namespace: db
 spec:
   accessModes:
     - ReadWriteOnce
@@ -13,6 +19,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: redis-pvc
+  namespace: db
 spec:
   accessModes:
     - ReadWriteOnce
@@ -24,6 +31,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: mongodb-pvc
+  namespace: db
 spec:
   accessModes:
     - ReadWriteOnce
@@ -35,6 +43,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: app-secrets
+  namespace: db
 type: Opaque
 data:
   POSTGRES_PASSWORD: dm9qYk5odUhBOVIx # base64 encoded for 'vojbNhuHA9R1'
@@ -45,6 +54,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: postgres
+  namespace: db
 spec:
   selector:
     matchLabels:
@@ -68,7 +78,7 @@ spec:
               key: POSTGRES_PASSWORD
         volumeMounts:
         - name: postgres-storage
-          mountPath: /var/lib/postgresql/data
+          mountPath: /var/lib/postgresql
       volumes:
       - name: postgres-storage
         persistentVolumeClaim:
@@ -78,6 +88,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: postgres
+  namespace: db
 spec:
   ports:
     - port: 5432
@@ -88,6 +99,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: redis
+  namespace: db
 spec:
   selector:
     matchLabels:
@@ -114,6 +126,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: redis
+  namespace: db
 spec:
   ports:
     - port: 6379
@@ -124,6 +137,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mongodb
+  namespace: db
 spec:
   selector:
     matchLabels:
@@ -159,6 +173,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: mongodb
+  namespace: db
 spec:
   ports:
     - port: 27017

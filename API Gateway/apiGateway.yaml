@@ -159,7 +159,8 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: nginx
+  name: nginx-custom
+  namespace: app-routing-system
 spec:
   type: LoadBalancer
   ports:
