@@ -1,0 +1,56 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model Coupon {
+    id               String         @id @default(uuid())
+    code             String         @unique
+    description      String
+    discountValue    Float
+    discountType     DiscountType
+    validFrom        DateTime
+    validUntil       DateTime
+    minOrderValue    Float?
+    maxDiscountValue Float?
+    paymentMethod    PaymentMethod?
+    userId           String?
+    productId        String?
+    categoryId       String?
+    specialDay       DateTime?
+    applicableDays   ApplicableDays
+    createdAt        DateTime       @default(now())
+    updatedAt        DateTime       @updatedAt
+}
+
+// child table to store userid and couponId same for product and category
+// 
+
+enum DiscountType {
+    PERCENTAGE
+    FIXED_AMOUNT
+}
+
+enum PaymentMethod {
+    CREDIT_CARD
+    DEBIT_CARD
+    PAYPAL
+    CASH_ON_DELIVERY
+    BANK_TRANSFER
+}
+
+enum ApplicableDays {
+    WEEKDAY
+    WEEKEND
+    ALL_DAYS
+}
