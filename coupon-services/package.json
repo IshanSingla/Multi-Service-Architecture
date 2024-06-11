@@ -4,7 +4,7 @@
   "scripts": {
     "start": "prisma generate && prisma db push   && node dist/index.js",
     "dev": "prisma generate && ts-node-dev --poll ./src/index.ts",
-    "build": "rimraf ./dist && tsc",
+    "build": "prisma generate && rimraf ./dist && tsc",
     "db:generate": "prisma generate --no-engine",
     "db:studio": "prisma generate && prisma studio",
     "db:migrate": "prisma migrate dev --name user-entity --create-only && npx prisma generate",

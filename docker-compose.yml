@@ -16,17 +16,17 @@ services:
             - ./db/postgres:/var/lib/postgresql/data
             - ./log/postgres:/var/log/postgres
 
-    # Redis for Authorization Service
-    redis:
-        image: redis:latest
-        container_name: redis
-        restart: always
-        command:
-            - 'redis-server'
-            - '--requirepass'
-            - 'zBQnYSwQ3n3Dq1fsoLnDaECPhFN3BJ5R'
-        networks:
-            - app-network
+    # # Redis for Authorization Service
+    # redis:
+    #     image: redis:latest
+    #     container_name: redis
+    #     restart: always
+    #     command:
+    #         - 'redis-server'
+    #         - '--requirepass'
+    #         - 'zBQnYSwQ3n3Dq1fsoLnDaECPhFN3BJ5R'
+    #     networks:
+    #         - app-network
 
     # Authorization Service
     authservice:
@@ -39,7 +39,7 @@ services:
             REDIS_PASSWORD: zBQnYSwQ3n3Dq1fsoLnDaECPhFN3BJ5R
         depends_on:
             - postgres
-            - redis
+            # - redis
         networks:
             - app-network
         volumes:
@@ -56,7 +56,7 @@ services:
             REDIS_PASSWORD: zBQnYSwQ3n3Dq1fsoLnDaECPhFN3BJ5R
         depends_on:
             - postgres
-            - redis
+            # - redis
         networks:
             - app-network
         volumes:
@@ -99,28 +99,6 @@ services:
         volumes:
             - ./log/couponservice:/app/logs
 
-    # Checkout Service
-    checkoutservice:
-        build: ./checkout-service
-        container_name: checkoutservice
-        restart: always
-        environment:
-            DATABASE_URL: postgresql://bfh_owner:vojbNhuHA9R1@postgres:5432/bfh_checkout
-            AUTH_SERVICE_URL: http://authservice:3000
-            PRODUCT_SERVICE_URL: http://productservice:3000
-            CART_SERVICE_URL: http://cartservice:3000
-            COUPON_SERVICE_URL: http://couponservice:3000
-        depends_on:
-            - postgres
-            - productservice
-            - authservice
-            - cartservice
-            - couponservice
-        networks:
-            - app-network
-        volumes:
-            - ./log/checkoutservice:/app/logs
-
         # Nginx
     nginx:
         image: nginx:latest
@@ -136,7 +114,6 @@ services:
             - productservice
             - cartservice
             - couponservice
-            - checkoutservice
         networks:
             - app-network
 
